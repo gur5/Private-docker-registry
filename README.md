@@ -118,14 +118,45 @@ sudo apt install -y apache2-utils
 
 - 	Installs htpasswd, which is used to create username/password authentication.
 **Generate Credentials**
+```
+htpasswd -Bbn gur q123 > /etc/docker/registry/htpasswd
+```
+-	-B: Uses bcrypt for password encryption.
+-	-n: Prints credentials instead of saving them.
+-	myuser mypassword: Replace with your username and strong password.
+-	> /etc/docker/registry/htpasswd: Saves credentials in a file.
 
+###  Step 4.2: Run Registry with Authentication
+**Stop the Current Registry**
+```
+docker stop registry && docker rm registry
+```
+- 	Stops and removes the existing registry container.
+**Run a New Instance with Authentication**
 
+```
+docker run -d -p 5000:5000 --name registry --restart always \
+  -v /etc/docker/registry:/auth \
+  -e "REGISTRY_AUTH=htpasswd" \
+  -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+  -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" \
+  registry:2
 
+```
+-	Mounts the authentication file (-v /etc/docker/registry:/auth).
+-	Enables authentication (REGISTRY_AUTH=htpasswd).
 
+**Login to the Private Registry**
+```
+docker login localhost:5000
+```
+- 	Prompts for username and password.
 
+## Step 5: Secure the Registry with SSL/TLS
 
-
-
+TLS encrypts traffic between clients and the registry.
+- add your ipaddress in your dns like godaddy.com 
+-	https://www.whatsmydns.net/
 
 
 
