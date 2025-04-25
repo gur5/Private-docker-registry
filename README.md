@@ -157,6 +157,110 @@ docker login localhost:5000
 TLS encrypts traffic between clients and the registry.
 - add your ipaddress in your dns like godaddy.com 
 -	https://www.whatsmydns.net/
+- Check your dns name is proper working
+
+### Step 5.1: Install Certbot for SSL Certificates
+```
+sudo apt install -y certbot
+```
+-	Installs Certbot to generate free SSL certificates.
+
+### Step 5.2: Generate an SSL Certificate
+```
+sudo certbot certonly --standalone -d gur.stackdev.live
+```
+- certonly: Only generates the certificate (does not modify system configuration).
+-	--standalone: Uses its own web server.
+-	-d gur.stackdev.live: Replace with your domain.
+
+Certificates are stored in: 
+
+/etc/letsencrypt/live/gur.stackdev.live/
+
+### Step 5.3: Run Registry with SSL
+**Stop the Running Registry**
+```
+docker stop registry && docker rm registry
+```
+**Run the Registry with SSL & Authentication**
+
+```
+docker run -d -p 5000:5000 --name registry --restart always \
+  -v /etc/docker/registry:/auth \
+  -v /etc/letsencrypt:/certs \
+  -e "REGISTRY_AUTH=htpasswd" \
+  -e "REGISTRY_AUTH_HTPASSWD_REALM=Private Docker Registry" \
+  -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" \
+  -e "REGISTRY_HTTP_TLS_CERTIFICATE=/certs/live/skjptpp.in/fullchain.pem" \
+  -e "REGISTRY_HTTP_TLS_KEY=/certs/live/skjptpp.in/privkey.pem" \
+  registry:2
+```
+## OR 
+```
+sudo docker run -d \
+  --restart=always \
+  --name registry \
+  -v /etc/letsencrypt/live/gur.stackdev.live/fullchain.pem:/certs/fullchain.pem \
+  -v /etc/letsencrypt/live/gur.stackdev.live/privkey.pem:/certs/privkey.pem \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/fullchain.pem \
+  -e REGISTRY_HTTP_TLS_KEY=/certs/privkey.pem \
+  -p 5000:5000 \
+  registry:2
+```
+-	Mounts SSL certificates (-v /etc/letsencrypt:/certs).
+-	Uses fullchain.pem and privkey.pem for secure communication.
+
+ 	**Test Secure Connection**
+```
+sudo chmod -R 755 /etc/letsencrypt/
+sudo chmod -R 755 /etc/letsencrypt/live/
+sudo chmod -R 644 /etc/letsencrypt/live/gur.stackdev.live /*
+sudo chmod -R 644 /etc/letsencrypt/archive/gur.stackdev.live /*
+sudo chmod 640 /etc/docker/registry/htpasswd
+sudo chown root:docker /etc/docker/registry/htpasswd
+docker restart registry
+```
+**Test Secure Connection**
+
+```
+curl -k -u gur:'q123'  https:// gur.stackdev.live:5000/v2/
+```
+**Login Securely to the Registry**
+```
+docker login gur.stackdev.live:5000
+```
+- Uses HTTPS instead of HTTP.
+**Pull Images from the Secure Registry**
+
+```
+docker pull alpine
+docker tag alpine:latest gur.stackdev.live:5000/alpine:latest
+docker push gur.stackdev.live:5000/alpine
+docker pull  gur.stackdev.live:5000/ubuntu
+curl https://gur.stackdev.live:5000/v2/_catalog
+```
+
+## Final Checks
+### 1. Ensure the Registry is Running
+```
+docker ps | grep registry
+```
+### 2. Verify Login Works
+```
+docker login gur.stackdev.live:5000
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
