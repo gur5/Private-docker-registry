@@ -50,6 +50,75 @@ docker run -d -p 5000:5000 --name registry --restart always registry:2
 -	--restart always: Ensures the container restarts automatically if it stops.
 -	registry:2: Uses the official Docker registry version 2 image.
 
+### 2.2 Verify the Registry is Running
+```
+curl http://localhost:5000/v2/
+```
+-	This checks if the registry is running by querying its API.
+-	If successful, it will return {}.
+
+## Step 3: Push and Pull an Image to the Private Registry
+
+### 3.1 Pull a Sample Image
+```
+docker pull ubuntu
+```
+-	This downloads the latest Ubuntu image from Docker Hub.
+
+### 3.2 Tag the Image for the Private Registry
+
+```
+docker tag ubuntu localhost:5000/ubuntu
+```
+-  This renames (tags) the image to associate it with our private registry.
+
+### 3.3 Push the Image to the Registry
+```
+docker push localhost:5000/ubuntu
+```
+
+- Uploads the image to our private registry.
+  
+### 3.4 Check Available Images in Registry
+```
+curl http://localhost:5000/v2/_catalog
+```
+
+-	Lists all images stored in the registry.
+-	Expected output: {"repositories":["ubuntu"]}.
+
+### 3.5 Pull the Image from the Registry
+To simulate pulling the image on another machine or after removing it:
+```
+docker rmi ubuntu
+docker pull localhost:5000/ubuntu
+
+```
+-	docker rmi ubuntu: Removes the local image.
+-	docker pull localhost:5000/ubuntu: Pulls the image back from the private registry.
+
+## Step 4: Secure the Registry with Authentication
+
+By default, anyone can access the registry, so we need authentication.
+
+### Step 4.1: Create Authentication Credentials
+**Create a Directory for Authentication Files**
+```
+sudo mkdir -p /etc/docker/registry
+sudo chmod 777 /etc/docker/registry
+```
+-	mkdir -p /etc/docker/registry: Creates a directory to store credentials.
+-	sudo chmod 777: Grants full read/write access 
+
+**Install Apache Utilities (htpasswd)**
+```
+sudo apt update
+sudo apt install -y apache2-utils
+```
+
+- 	Installs htpasswd, which is used to create username/password authentication.
+**Generate Credentials**
+
 
 
 
