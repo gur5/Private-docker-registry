@@ -7,6 +7,7 @@ A Private Docker Registry allows you to store and manage container images privat
 -	**Registry Access:** Private (secured with authentication)
 -	**Storage Location:** Local or Cloud
 -	**Security:** Secured with TLS (SSL certificate)
+-	**Port**  22 5000 80 443 are enables
 
 
 ## Step 1: Install Docker and Dependencies
@@ -165,7 +166,12 @@ sudo apt install -y certbot
 ```
 -	Installs Certbot to generate free SSL certificates.
 
-### Step 5.2: Generate an SSL Certificate
+### Step 5.2 Set domain name
+- go to goaddy and set domin name with ip
+- check domain connected visit https://www.whatsmydns.net/ or nslookup gur.stackdev.live
+
+
+### Step 5.3: Generate an SSL Certificate
 ```
 sudo certbot certonly --standalone -d gur.stackdev.live
 ```
@@ -177,7 +183,7 @@ Certificates are stored in:
 
 /etc/letsencrypt/live/gur.stackdev.live/
 
-### Step 5.3: Run Registry with SSL
+### Step 5.4: Run Registry with SSL
 **Stop the Running Registry**
 ```
 docker stop registry && docker rm registry
