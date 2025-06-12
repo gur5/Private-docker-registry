@@ -201,7 +201,7 @@ docker run -d -p 5000:5000 --name registry --restart always \
   -e "REGISTRY_HTTP_TLS_KEY=/certs/live/skjptpp.in/privkey.pem" \
   registry:2
 ```
-## OR 
+## OR  use below cmd its proper working
 ```
 sudo docker run -d \
   --restart=always \
@@ -216,7 +216,13 @@ sudo docker run -d \
 -	Mounts SSL certificates (-v /etc/letsencrypt:/certs).
 -	Uses fullchain.pem and privkey.pem for secure communication.
 
- 	**Test Secure Connection**
+  **Test Secure Connection**
+
+```
+curl -k -u gur:'q123'  https://gur.stackdev.live:5000/v2/
+```
+
+ 	**Test Secure Connection** # if any error above cmd use only that condition 
 ```
 sudo chmod -R 755 /etc/letsencrypt/
 sudo chmod -R 755 /etc/letsencrypt/live/
@@ -229,7 +235,7 @@ docker restart registry
 **Test Secure Connection**
 
 ```
-curl -k -u gur:'q123'  https:// gur.stackdev.live:5000/v2/
+curl -k -u gur:'q123'  https://gur.stackdev.live:5000/v2/
 ```
 **Login Securely to the Registry**
 ```
